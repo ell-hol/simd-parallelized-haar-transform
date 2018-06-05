@@ -179,13 +179,81 @@ static inline void haar_x_simd(uint8_t *output, const uint8_t *input) {
 
 }
 
-static inline void haar_y_simd(uint8_t *output, const uint8_t *input) {
-	// TODO Vectorize me
-	haar_y_scalar(output, input);
+static inline void haar_y_simd(uint8_t* output, const uint8_t* input){
 
-	/////// Test ///////////////////////
-	//haar_y_scalar(output, input);
-	////////////////////////////////////
+    __m128i* tmp_input_arr = (__m128i*) input;
+
+    // LEVEL 1
+    __m128i negones ALIGNED16;
+
+    __m128i tmp_output_level1_l1, tmp_output_level1_l2, tmp_output_level1_l3, tmp_output_level1_l4, tmp_output_level1_l5, tmp_output_level1_l6, tmp_output_level1_l7, tmp_output_level1_l8 ALIGNED16;
+    __m128i tmp_output_level2_l1, tmp_output_level2_l2, tmp_output_level2_l3, tmp_output_level2_l4 ALIGNED16;
+    __m128i tmp_output_level3_l1, tmp_output_level3_l2 ALIGNED16;
+
+    tmp_output_level1_l1 = _mm_avg_epu8(tmp_input_arr[0], tmp_input_arr[1]);
+    tmp_output_level1_l2 = _mm_avg_epu8(tmp_input_arr[2], tmp_input_arr[3]);
+    tmp_output_level1_l3 = _mm_avg_epu8(tmp_input_arr[4], tmp_input_arr[5]);
+    tmp_output_level1_l4 = _mm_avg_epu8(tmp_input_arr[6], tmp_input_arr[7]);
+    tmp_output_level1_l5 = _mm_avg_epu8(tmp_input_arr[8], tmp_input_arr[9]);
+    tmp_output_level1_l6 = _mm_avg_epu8(tmp_input_arr[10], tmp_input_arr[11]);
+    tmp_output_level1_l7 = _mm_avg_epu8(tmp_input_arr[12], tmp_input_arr[13]);
+    tmp_output_level1_l8 = _mm_avg_epu8(tmp_input_arr[14], tmp_input_arr[15]);
+
+    negones = _mm_set1_epi8(-1);
+
+    tmp_input_arr[1] = _mm_sign_epi8(tmp_input_arr[1],negones);
+    tmp_input_arr[3] = _mm_sign_epi8(tmp_input_arr[3],negones);
+    tmp_input_arr[5] = _mm_sign_epi8(tmp_input_arr[5],negones);
+    tmp_input_arr[7] = _mm_sign_epi8(tmp_input_arr[7],negones);
+    tmp_input_arr[9] = _mm_sign_epi8(tmp_input_arr[9],negones);
+    tmp_input_arr[11] = _mm_sign_epi8(tmp_input_arr[11],negones);
+    tmp_input_arr[13] = _mm_sign_epi8(tmp_input_arr[13],negones);
+    tmp_input_arr[15] = _mm_sign_epi8(tmp_input_arr[15],negones);
+
+    ((__m128i *)output)[8] = _mm_avg_epu8(tmp_input_arr[0], tmp_input_arr[1]);
+    ((__m128i *)output)[9] = _mm_avg_epu8(tmp_input_arr[2], tmp_input_arr[3]);
+    ((__m128i *)output)[10] = _mm_avg_epu8(tmp_input_arr[4], tmp_input_arr[5]);
+    ((__m128i *)output)[11] = _mm_avg_epu8(tmp_input_arr[6], tmp_input_arr[7]);
+    ((__m128i *)output)[12] = _mm_avg_epu8(tmp_input_arr[8], tmp_input_arr[9]);
+    ((__m128i *)output)[13] = _mm_avg_epu8(tmp_input_arr[10], tmp_input_arr[11]);
+    ((__m128i *)output)[14] = _mm_avg_epu8(tmp_input_arr[12], tmp_input_arr[13]);
+    ((__m128i *)output)[15] = _mm_avg_epu8(tmp_input_arr[14], tmp_input_arr[15]);
+
+    // Level 2
+
+    tmp_output_level2_l1 = _mm_avg_epu8(tmp_output_level1_l1, tmp_output_level1_l2);
+    tmp_output_level2_l2 = _mm_avg_epu8(tmp_output_level1_l3, tmp_output_level1_l4);
+    tmp_output_level2_l3 = _mm_avg_epu8(tmp_output_level1_l5, tmp_output_level1_l6);
+    tmp_output_level2_l4 = _mm_avg_epu8(tmp_output_level1_l7, tmp_output_level1_l8);
+
+    tmp_output_level1_l2 = _mm_sign_epi8(tmp_output_level1_l2,negones);
+    tmp_output_level1_l4 = _mm_sign_epi8(tmp_output_level1_l4,negones);
+    tmp_output_level1_l6 = _mm_sign_epi8(tmp_output_level1_l6,negones);
+    tmp_output_level1_l8 = _mm_sign_epi8(tmp_output_level1_l8,negones);
+
+    ((__m128i *)output)[4] = _mm_avg_epu8(tmp_output_level1_l1, tmp_output_level1_l2);
+    ((__m128i *)output)[5] = _mm_avg_epu8(tmp_output_level1_l3, tmp_output_level1_l4);
+    ((__m128i *)output)[6] = _mm_avg_epu8(tmp_output_level1_l5, tmp_output_level1_l6);
+    ((__m128i *)output)[7] = _mm_avg_epu8(tmp_output_level1_l7, tmp_output_level1_l8);
+
+    // LEVEL 3
+
+    tmp_output_level3_l1 = _mm_avg_epu8(tmp_output_level2_l1,tmp_output_level2_l2);
+    tmp_output_level3_l2 = _mm_avg_epu8(tmp_output_level2_l3,tmp_output_level2_l4);
+
+    tmp_output_level2_l2 = _mm_sign_epi8(tmp_output_level2_l2,negones);
+    tmp_output_level2_l4 = _mm_sign_epi8(tmp_output_level2_l4,negones);
+
+    ((__m128i*)output)[2] = _mm_avg_epu8(tmp_output_level2_l1,tmp_output_level2_l2);
+    ((__m128i*)output)[3] = _mm_avg_epu8(tmp_output_level2_l3,tmp_output_level2_l4);
+
+    // LEVEL 4
+
+    ((__m128i*)output)[0] = _mm_avg_epu8(tmp_output_level3_l1,tmp_output_level3_l2);
+
+    tmp_output_level3_l2 =  _mm_sign_epi8(tmp_output_level3_l2,negones);
+
+    ((__m128i*)output)[1] = _mm_avg_epu8(tmp_output_level3_l1,tmp_output_level3_l2);
 
 }
 
