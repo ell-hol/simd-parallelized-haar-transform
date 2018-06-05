@@ -61,11 +61,9 @@ static inline void haar_y_scalar(uint8_t *output, const uint8_t *input) {
 NO_INLINE static void haar_scalar(uint8_t *output, const uint8_t *input) {
 	uint8_t tmp[ROWS*COLS];
 
-	haar_x_scalar(output, input);
-
 	// //TODO : Orginals, uncomment later following lines and delete previous one
-	// haar_x_scalar(tmp, input);
-	// haar_y_scalar(output, tmp);
+	haar_x_scalar(tmp, input);
+	haar_y_scalar(output, tmp);
 }
 
 static inline void haar_x_simd(uint8_t *output, const uint8_t *input) {
@@ -260,16 +258,9 @@ static inline void haar_y_simd(uint8_t* output, const uint8_t* input){
 NO_INLINE static void haar_simd(uint8_t *output, const uint8_t *input) {
 	uint8_t tmp[ROWS*COLS] ALIGNED16;
 
-	//////////////TEST //////////////////////
-	// haar_x_simd(tmp, input);
-	// haar_y_simd(output, tmp);
-	/////////////////////////////////////////
-
-	haar_x_simd(output, input);
-
 	//TODO : uncomment the following, it's from the original code then delete previous line !!
-	//haar_x_simd(tmp, input);
-	//haar_y_simd(output, tmp);
+	haar_x_simd(tmp, input);
+	haar_y_simd(output, tmp);
 }
 
 static int64_t time_diff(struct timespec start, struct timespec end) {
