@@ -163,8 +163,6 @@ static inline void haar_x_simd(uint8_t *output, const uint8_t *input) {
 		 _mm_store_si128(&out_vec[i], temp_128);
 
 	}
-		// casting result back to uint8_t vector type
-		*output = (uint8_t *) out_vec;
 
 		////////// TEST ROUTINE : PRINT even and odd positions ////////////////////
 
